@@ -2,11 +2,7 @@
   "name": "ogsnap",
   "version": "1.0.0",
   "description": "Dynamic OG image generation API — one URL, perfect social cards",
-  "scripts": {
-    "dev": "vercel dev",
-    "build": "vercel build",
-    "deploy": "vercel --prod"
-  },
+  "scripts": {},
   "dependencies": {
     "@vercel/og": "^0.6.0"
   },
