@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OGSnap — Dynamic Social Cards in One URL</title>
+  <meta name="description" content="Generate beautiful Open Graph images with a single URL. No design tools, no build step, no Puppeteer. Works with any framework.">
+  <meta property="og:title" content="OGSnap — Dynamic Social Cards in One URL">
+  <meta property="og:description" content="Generate beautiful OG images with a single URL. No design tools, no build step.">
+  <meta property="og:image" content="/api/og?template=saas&title=Dynamic+Social+Cards+in+One+URL&subtitle=No+design+tools.+No+build+step.+Just+a+URL.&brand=OGSnap&accent=%236366f1">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0a0a0f;
+      --fg: #f0f0f5;
+      --muted: #8888aa;
+      --accent: #6366f1;
+      --accent-glow: #6366f133;
+      --surface: #14141f;
+      --border: #1e1e2e;
+      --code-bg: #1a1a2a;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+    /* Nav */
+    nav {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo { font-size: 20px; font-weight: 700; color: var(--fg); text-decoration: none; }
+    .logo span { color: var(--accent); }
+    nav a.cta-sm {
+      background: var(--accent);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 100px 0 60px;
+    }
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 64px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 20px;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+
+    /* Live preview */
+    .preview-section { padding: 0 0 80px; }
+    .preview-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .preview-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .preview-url {
+      padding: 16px 24px;
+      background: var(--code-bg);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      color: var(--muted);
+      overflow-x: auto;
+      white-space: nowrap;
+      border-top: 1px solid var(--border);
+    }
+    .preview-url span { color: var(--accent); }
+
+    /* How it works */
+    .how {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+    .how h2 {
+      text-align: center;
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 60px;
+      letter-spacing: -0.02em;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 32px;
+    }
+    .step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+    }
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+    .step h3 { font-size: 18px; margin-bottom: 8px; }
+    .step p { color: var(--muted); font-size: 15px; }
+
+    /* Code example */
+    .code-section {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+    .code-section h2 {
+      text-align: center;
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .code-section > p {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 40px;
+      font-size: 18px;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+    pre .tag { color: #f472b6; }
+    pre .attr { color: #a78bfa; }
+    pre .val { color: #34d399; }
+    pre .comment { color: #555577; }
+
+    /* Templates */
+    .templates-section {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+    .templates-section h2 {
+      text-align: center;
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .templates-section > p {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 48px;
+      font-size: 18px;
+    }
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .template-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .template-card:hover { border-color: var(--accent); }
+    .template-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .template-card .label {
+      padding: 16px;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    /* Pricing */
+    .pricing {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+    .pricing h2 {
+      text-align: center;
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .pricing > p {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 48px;
+      font-size: 18px;
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+    .plan {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+    }
+    .plan.featured {
+      border-color: var(--accent);
+      box-shadow: 0 0 40px var(--accent-glow);
+    }
+    .plan-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .plan-price {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    .plan-price span { font-size: 18px; font-weight: 400; color: var(--muted); }
+    .plan-features {
+      list-style: none;
+      margin: 28px 0;
+      flex: 1;
+    }
+    .plan-features li {
+      padding: 6px 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .plan-features li::before {
+      content: '✓ ';
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .plan-cta {
+      display: block;
+      text-align: center;
+      padding: 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      transition: opacity 0.2s;
+    }
+    .plan-cta:hover { opacity: 0.85; }
+    .plan-cta.primary {
+      background: var(--accent);
+      color: white;
+    }
+    .plan-cta.secondary {
+      background: var(--code-bg);
+      color: var(--fg);
+      border: 1px solid var(--border);
+    }
+
+    /* Playground */
+    .playground {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+    .playground h2 {
+      text-align: center;
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .playground > p {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 40px;
+      font-size: 18px;
+    }
+    .playground-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 700px) {
+      .playground-grid { grid-template-columns: 1fr; }
+    }
+    .playground-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .field input, .field select {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--fg);
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--accent);
+    }
+    .playground-preview {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .playground-preview img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .playground-url {
+      padding: 12px 16px;
+      font-family: 'SF Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      word-break: break-all;
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <!-- Nav -->
+  <nav>
+    <div class="container">
+      <a href="/" class="logo">OG<span>Snap</span></a>
+      <div style="display: flex; gap: 24px; align-items: center;">
+        <a href="/api/templates" style="color: var(--muted); text-decoration: none; font-size: 14px;">API Docs</a>
+        <a href="#pricing" class="cta-sm">Get Started</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <h1>Beautiful social cards.<br><em>Just a URL.</em></h1>
+      <p>Add one meta tag. Get perfect Open Graph images for every page. No design tools, no build step, no Puppeteer.</p>
+    </div>
+  </section>
+
+  <!-- Live Preview -->
+  <section class="preview-section">
+    <div class="container">
+      <div class="preview-card">
+        <img src="/api/og?template=blog&title=How+We+Scaled+to+1M+Users&subtitle=The+infrastructure+decisions+that+made+it+possible&brand=TechBlog&accent=%236366f1" alt="OG image preview" loading="lazy">
+        <div class="preview-url">
+          <span>GET</span> /api/og?title=How+We+Scaled+to+1M+Users&subtitle=The+infrastructure+decisions...&brand=TechBlog
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="how">
+    <div class="container">
+      <h2>Three lines. That's it.</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Add a meta tag</h3>
+          <p>Point your og:image to our API with your title and template. One line of HTML.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>We generate the image</h3>
+          <p>Rendered on the edge in under 50ms. No Puppeteer, no headless browser. Cached globally.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Share anywhere</h3>
+          <p>Twitter, LinkedIn, Slack, Discord — your links look professional everywhere, automatically.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Code Example -->
+  <section class="code-section">
+    <div class="container">
+      <h2>Works with any framework</h2>
+      <p>HTML, React, Vue, Astro, Hugo, Jekyll, WordPress — it's just a URL.</p>
+      <pre><code><span class="comment">&lt;!-- Add this to your &lt;head&gt; --&gt;</span>
+<span class="tag">&lt;meta</span> <span class="attr">property</span>=<span class="val">"og:image"</span>
+      <span class="attr">content</span>=<span class="val">"https://ogsnap.vercel.app/api/og
+        ?title=Your+Page+Title
+        &amp;subtitle=Your+description
+        &amp;template=blog
+        &amp;brand=YourSite
+        &amp;accent=%236366f1"</span> <span class="tag">/&gt;</span>
+
+<span class="comment">&lt;!-- Dynamic in Next.js, Astro, etc: --&gt;</span>
+<span class="tag">&lt;meta</span> <span class="attr">property</span>=<span class="val">"og:image"</span>
+      <span class="attr">content</span>=<span class="val">{`https://ogsnap.vercel.app/api/og?title=${encodeURIComponent(post.title)}&brand=MyBlog`}</span> <span class="tag">/&gt;</span></code></pre>
+    </div>
+  </section>
+
+  <!-- Templates -->
+  <section class="templates-section">
+    <div class="container">
+      <h2>5 templates, ready to go</h2>
+      <p>Pick a template, pass your content as URL parameters. Done.</p>
+      <div class="template-grid">
+        <div class="template-card">
+          <img src="/api/og?template=blog&title=Building+a+Design+System&subtitle=From+tokens+to+components&brand=DesignBlog&accent=%236366f1" alt="Blog template" loading="lazy">
+          <div class="label">Blog</div>
+        </div>
+        <div class="template-card">
+          <img src="/api/og?template=saas&title=Ship+10x+Faster&subtitle=The+platform+for+modern+teams&brand=LaunchKit&accent=%2310b981" alt="SaaS template" loading="lazy">
+          <div class="label">SaaS</div>
+        </div>
+        <div class="template-card">
+          <img src="/api/og?template=minimal&title=Less+Is+More&theme=dark" alt="Minimal template" loading="lazy">
+          <div class="label">Minimal</div>
+        </div>
+        <div class="template-card">
+          <img src="/api/og?template=docs&title=Getting+Started&subtitle=Install+and+configure+in+under+2+minutes&brand=OGSnap&accent=%23f59e0b" alt="Docs template" loading="lazy">
+          <div class="label">Docs</div>
+        </div>
+        <div class="template-card">
+          <img src="/api/og?template=changelog&title=Custom+Fonts+Support&subtitle=v2.1.0&brand=OGSnap&accent=%23ef4444" alt="Changelog template" loading="lazy">
+          <div class="label">Changelog</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Playground -->
+  <section class="playground" id="playground">
+    <div class="container">
+      <h2>Try it live</h2>
+      <p>Tweak the parameters and see your image update in real time.</p>
+      <div class="playground-grid">
+        <div class="playground-controls">
+          <div class="field">
+            <label>Title</label>
+            <input type="text" id="pg-title" value="My Awesome Blog Post" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Subtitle</label>
+            <input type="text" id="pg-subtitle" value="A deep dive into modern web development" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Brand</label>
+            <input type="text" id="pg-brand" value="MyBlog" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Template</label>
+            <select id="pg-template" onchange="updatePreview()">
+              <option value="blog">Blog</option>
+              <option value="saas">SaaS</option>
+              <option value="minimal">Minimal</option>
+              <option value="docs">Docs</option>
+              <option value="changelog">Changelog</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Theme</label>
+            <select id="pg-theme" onchange="updatePreview()">
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Accent Color</label>
+            <input type="color" id="pg-accent" value="#6366f1" oninput="updatePreview()" style="height: 44px; cursor: pointer;">
+          </div>
+        </div>
+        <div class="playground-preview">
+          <img id="pg-img" src="" alt="Preview" loading="lazy">
+          <div class="playground-url" id="pg-url"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <h2>Simple pricing</h2>
+      <p>Free to start. Pay only when you grow.</p>
+      <div class="pricing-grid">
+        <div class="plan">
+          <div class="plan-name">Free</div>
+          <div class="plan-price">$0<span>/mo</span></div>
+          <ul class="plan-features">
+            <li>50 images per day</li>
+            <li>All 5 templates</li>
+            <li>Dark &amp; light themes</li>
+            <li>Global edge caching</li>
+            <li>No watermark</li>
+          </ul>
+          <a href="#playground" class="plan-cta secondary">Try it now</a>
+        </div>
+        <div class="plan featured">
+          <div class="plan-name">Indie</div>
+          <div class="plan-price">$9<span>/mo</span></div>
+          <ul class="plan-features">
+            <li>2,000 images per month</li>
+            <li>All templates</li>
+            <li>Custom branding</li>
+            <li>Priority cache (30-day)</li>
+            <li>API key for tracking</li>
+          </ul>
+          <a href="#" id="stripe-indie" class="plan-cta primary">Get started</a>
+        </div>
+        <div class="plan">
+          <div class="plan-name">Pro</div>
+          <div class="plan-price">$29<span>/mo</span></div>
+          <ul class="plan-features">
+            <li>10,000 images per month</li>
+            <li>Custom HTML templates</li>
+            <li>Usage analytics dashboard</li>
+            <li>Priority support</li>
+            <li>SLA guarantee</li>
+          </ul>
+          <a href="#" id="stripe-pro" class="plan-cta secondary">Contact us</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>OGSnap — built by a developer, for developers. <a href="/api/templates">API Docs</a></p>
+    </div>
+  </footer>
+
+  <script>
+    let debounceTimer;
+    function updatePreview() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const title = document.getElementById('pg-title').value;
+        const subtitle = document.getElementById('pg-subtitle').value;
+        const brand = document.getElementById('pg-brand').value;
+        const template = document.getElementById('pg-template').value;
+        const theme = document.getElementById('pg-theme').value;
+        const accent = document.getElementById('pg-accent').value;
+
+        const params = new URLSearchParams({
+          title,
+          subtitle,
+          brand,
+          template,
+          theme,
+          accent,
+        });
+
+        const url = `/api/og?${params.toString()}`;
+        document.getElementById('pg-img').src = url;
+        document.getElementById('pg-url').textContent = url;
+      }, 300);
+    }
+    // Initialize
+    updatePreview();
+  </script>
+</body>
+</html>
